@@ -24,10 +24,23 @@
 #include <debug.h>
 #include <platform.h>
 #include <dev/uart.h>
+#include <arch/arm/mmu.h>
 #include "platform_p.h"
 
 void platform_init_mmu_mappings(void)
 {
+	/* do some memory map initialization */
+	addr_t addr;
+
+	arm_mmu_map_section(0x00, 0, MMU_FLAG_CACHED | MMU_FLAG_BUFFERED);
+
+	for (addr=0x00; addr < MEMSIZE; addr += (1024*1024)) {
+		arm_mmu_map_section(addr, addr, MMU_FLAG_CACHED | MMU_FLAG_BUFFERED | MMU_FLAG_READWRITE);
+	}
+
+	for (addr=MEMSIZE; addr < (1024*1024*1024); addr += (1024*1024)) {
+		arm_mmu_map_section(addr, addr, MMU_FLAG_READWRITE);
+	}
 }
 
 void platform_early_init(void)
