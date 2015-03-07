@@ -115,7 +115,7 @@ FUNCTION(arch_enable_cache)
 	msr		cpsr, r3
 	bx		lr
 
-#elif ARM_CPU_CORTEX_A8
+#elif ARM_CPU_CORTEX_A8 || ARM_CPU_CORTEX_A7
 
 /* void arch_disable_cache(uint flags) */
 FUNCTION(arch_disable_cache)

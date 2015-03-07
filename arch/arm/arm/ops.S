@@ -148,7 +148,7 @@ FUNCTION(_atomic_or)
 
 /* void arch_idle(); */
 FUNCTION(arch_idle)
-#if ARM_CPU_CORTEX_A8
+#if ARM_CPU_CORTEX_A8 || ARM_CPU_CORTEX_A7
 	wfi
 #elif PLATFORM_MSM7K
 	/* TODO: safely handle wfi */

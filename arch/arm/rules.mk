@@ -57,6 +57,22 @@ ENABLE_THUMB := true
 ONLY_THUMB := true
 SUBARCH := arm-m
 endif
+ifeq ($(ARM_CPU),cortex-a7)
+GLOBAL_DEFINES += \
+	ARM_WITH_CP15=1 \
+	ARM_WITH_MMU=1 \
+	ARM_ISA_ARMv7=1 \
+	ARM_ISA_ARMv7A=1 \
+	ARM_WITH_VFP=1 \
+	ARM_WITH_NEON=1 \
+	ARM_WITH_THUMB=1 \
+	ARM_WITH_THUMB2=1 \
+	ARM_WITH_CACHE=1 \
+	ARM_WITH_L2=1
+GLOBAL_COMPILEFLAGS += -mcpu=$(ARM_CPU)
+HANDLED_CORE := true
+#CFLAGS += -mfpu=neon -mfloat-abi=softfp
+endif
 ifeq ($(ARM_CPU),cortex-a8)
 GLOBAL_DEFINES += \
 	ARM_WITH_CP15=1 \

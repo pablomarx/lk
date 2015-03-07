@@ -190,7 +190,7 @@ static inline uint32_t arch_cycle_count(void)
 #else
 	return 0;
 #endif
-#elif ARM_CPU_CORTEX_A8
+#elif ARM_CPU_CORTEX_A8 || ARM_CPU_CORTEX_A7
 	uint32_t count;
 	__asm__ volatile("mrc		p15, 0, %0, c9, c13, 0"
 		: "=r" (count)
