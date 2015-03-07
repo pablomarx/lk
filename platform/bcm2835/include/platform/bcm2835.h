@@ -28,7 +28,13 @@
  ********************************************************************/
 
 /* Start of memory-mapped peripherals address space  */
-#define PERIPHERALS_BASE 0x20000000
+#if BCM2836
+# define PERIPHERALS_BASE 0x3F000000
+#elif BCM2835
+# define PERIPHERALS_BASE 0x20000000
+#else
+# error "unknown Broadcom SOC"
+#endif
 
 /* System timer  */
 #define SYSTEM_TIMER_REGS_BASE	(PERIPHERALS_BASE + 0x3000)
@@ -47,8 +53,11 @@
 /* Power management / watchdog timer  */
 #define PM_REGS_BASE           (PERIPHERALS_BASE + 0x100000)
 
+/* GPIO  */
+#define GPIO_REGS_BASE         (PERIPHERALS_BASE + 0x200000)
+
 /* PL011 UART  */
-#define PL011_REGS_BASE        (PERIPHERALS_BASE + 0x201000)
+#define PL011_REGS_BASE        (GPIO_REGS_BASE + 0x15000)
 
 /* SD host controller  */
 #define SDHCI_REGS_BASE        (PERIPHERALS_BASE + 0x300000)

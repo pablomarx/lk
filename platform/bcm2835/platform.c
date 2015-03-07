@@ -25,22 +25,50 @@
 #include <platform.h>
 #include <dev/uart.h>
 #include <arch/arm/mmu.h>
+#include <platform/bcm2835.h>
 #include "platform_p.h"
+
+#define MEGABYTE (1024 * 1024)
 
 void platform_init_mmu_mappings(void)
 {
 	/* do some memory map initialization */
 	addr_t addr;
 
-	arm_mmu_map_section(0x00, 0, MMU_FLAG_CACHED | MMU_FLAG_BUFFERED);
-
-	for (addr=0x00; addr < MEMSIZE; addr += (1024*1024)) {
+	// 1024MB - 16MB of kernel memory (some belongs to the VC)
+	for (addr = 0x00; addr < MEMSIZE - (16 * MEGABYTE); addr += MEGABYTE) {
 		arm_mmu_map_section(addr, addr, MMU_FLAG_CACHED | MMU_FLAG_BUFFERED | MMU_FLAG_READWRITE);
 	}
 
-	for (addr=MEMSIZE; addr < (1024*1024*1024); addr += (1024*1024)) {
-		arm_mmu_map_section(addr, addr, MMU_FLAG_READWRITE);
+#if BCM2835
+	// unused up to PERIPHERALS_BASE
+	for (; addr < PERIPHERALS_BASE; addr += MEGABYTE) {
+		arm_mmu_map_section(addr, addr, 0);
 	}
+#else
+	addr = PERIPHERALS_BASE;
+#endif
+
+	// 16 MB peripherals at PERIPHERALS_BASE
+	for (; addr < PERIPHERALS_BASE + (16 * MEGABYTE); addr += MEGABYTE) {
+		arm_mmu_map_section(addr, addr, MMU_FLAG_READWRITE); // 0x10416
+	}
+
+	// 1 MB mailboxes
+	// shared device, never execute
+	arm_mmu_map_section(addr, addr, MMU_FLAG_READWRITE);
+	addr += MEGABYTE;
+
+	// unused up to 0x7FFFFFFF
+	for (; addr < 0x7FFFFFFF; addr += MEGABYTE) {
+		arm_mmu_map_section(addr, addr, 0);
+	}
+
+	// one second level page tabel (leaf table) at 0x80000000
+	arm_mmu_map_section(addr, addr, MMU_FLAG_CACHED);
+	addr += MEGABYTE;
+
+	// 2047MB unused (rest of address space)
 }
 
 void platform_early_init(void)

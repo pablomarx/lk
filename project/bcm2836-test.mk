@@ -9,10 +9,10 @@ MODULES += \
 	app/tests \
 	app/shell
 
+BCM_SOC := bcm2836
+
 GLOBAL_DEFINES += \
 	WITH_KERNEL_EVLOG=1
-
-BCM_SOC := bcm2835
 
 # extra rules to copy the bcm2835.conf file to the build dir
 #$(BUILDDIR)/bcm2835.conf: $(LOCAL_DIR)/bcm2835.conf

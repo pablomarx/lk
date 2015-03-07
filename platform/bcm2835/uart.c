@@ -4,28 +4,30 @@
 #include <platform/bcm2835.h>
 #include <target/debugconfig.h>
 
-#define AUX_ENABLES     0x20215004
-#define AUX_MU_IO_REG   0x20215040
-#define AUX_MU_IER_REG  0x20215044
-#define AUX_MU_IIR_REG  0x20215048
-#define AUX_MU_LCR_REG  0x2021504C
-#define AUX_MU_MCR_REG  0x20215050
-#define AUX_MU_LSR_REG  0x20215054
-#define AUX_MU_MSR_REG  0x20215058
-#define AUX_MU_SCRATCH  0x2021505C
-#define AUX_MU_CNTL_REG 0x20215060
-#define AUX_MU_STAT_REG 0x20215064
-#define AUX_MU_BAUD_REG 0x20215068
+#define AUX_BASE PL011_REGS_BASE
 
-#define GPCLR0  0x20200028
-#define GPSET0  0x2020001C
-#define GPFSEL1 0x20200004
+#define AUX_ENABLES     (AUX_BASE + 0x04)
+#define AUX_MU_IO_REG   (AUX_BASE + 0x40)
+#define AUX_MU_IER_REG  (AUX_BASE + 0x44)
+#define AUX_MU_IIR_REG  (AUX_BASE + 0x48)
+#define AUX_MU_LCR_REG  (AUX_BASE + 0x4C)
+#define AUX_MU_MCR_REG  (AUX_BASE + 0x50)
+#define AUX_MU_LSR_REG  (AUX_BASE + 0x54)
+#define AUX_MU_MSR_REG  (AUX_BASE + 0x58)
+#define AUX_MU_SCRATCH  (AUX_BASE + 0x5C)
+#define AUX_MU_CNTL_REG (AUX_BASE + 0x60)
+#define AUX_MU_STAT_REG (AUX_BASE + 0x64)
+#define AUX_MU_BAUD_REG (AUX_BASE + 0x68)
 
-#define GPFSEL1 0x20200004
-#define GPSET0  0x2020001C
-#define GPCLR0  0x20200028
-#define GPPUD       0x20200094
-#define GPPUDCLK0   0x20200098
+#define GPCLR0  (GPIO_REGS_BASE + 0x28)
+#define GPSET0  (GPIO_REGS_BASE + 0x1C)
+#define GPFSEL1 (GPIO_REGS_BASE + 0x04)
+
+#define GPFSEL1 (GPIO_REGS_BASE + 0x04)
+#define GPSET0  (GPIO_REGS_BASE + 0x1C)
+#define GPCLR0  (GPIO_REGS_BASE + 0x28)
+#define GPPUD       (GPIO_REGS_BASE + 0x94)
+#define GPPUDCLK0   (GPIO_REGS_BASE + 0x98)
 
 int uart_putc(int port, char c) {
 	while (!(readl(AUX_MU_LSR_REG)&0x20))
@@ -61,6 +63,9 @@ void uart_flush_rx(int port) {
     }
 }
 
+#define CR_RTSEN (1<<14)
+#define CR_CTSEN (1<<15)
+
 void uart_init_early(void)
 {
     unsigned int ra;
@@ -80,10 +85,13 @@ void uart_init_early(void)
     ra|=2<<15;    //alt5
     writel(ra, GPFSEL1);
     writel(0, GPPUD);
+	
     for(ra=0;ra<150;ra++) {};
-    writel((1<<14)|(1<<15), GPPUDCLK0);
+    writel(CR_RTSEN|CR_CTSEN, GPPUDCLK0);
+
     for(ra=0;ra<150;ra++) {};
     writel(0, GPPUDCLK0);
+
     writel(3, AUX_MU_CNTL_REG);
 }
 
